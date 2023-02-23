@@ -1,5 +1,10 @@
 import { Server } from '@overnightjs/core';
 import { Application, NextFunction, Request, Response } from 'express';
+import { connect as mongooseConnect, connection } from 'mongoose';
+import { FinanceController } from './controllers/planejamento'
+import dotenv from 'dotenv';
+dotenv.config();
+
 import bodyParser from 'body-parser';
 import cors from 'cors'
 
@@ -12,6 +17,7 @@ export class SetupServer extends Server {
   public async init(): Promise<void> {
     this.setupExpress();
     this.setupControllers();
+    await this.databaseSetup()
   }
 
   private setupExpress(): void {
@@ -21,11 +27,21 @@ export class SetupServer extends Server {
   }
 
   private setupControllers(): void {
-    //this.addControllers([gameController, userController]);
+    const financeController = new FinanceController();
+    this.addControllers([financeController]);
   }
 
   public getApp(): Application {
     return this.app;
+  }
+
+  private async databaseSetup(): Promise<void> {
+    const url = process.env.DATABASE
+    await mongooseConnect(url as string)
+  }
+
+  public async close(): Promise<void> {
+    await connection.close()
   }
 
   public start(): void {
