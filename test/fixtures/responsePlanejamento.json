@@ -1,0 +1,40 @@
+{
+  "receitas": {
+    "salario": 3000,
+    "outrasReceitas": 0
+  },
+  "despesas": {
+    "condominio": 200,
+    "aluguel": 1100,
+    "transporte": 300,
+    "alimentacao": 200,
+    "luz": 150,
+    "agua": 100,
+    "internet": 100,
+    "academia": 0,
+    "saude": 0,
+    "cartaoDeCredito": 0,
+    "diarista": 0,
+    "escola" : 0,
+    "emprestimo": 0,
+    "celular": 0,
+    "planoDeSaude": 0,
+    "supermercado": 600,
+    "outros": 0
+  },
+  "lazer" : {
+    "alimentacao": 0,
+    "assinaturasMensais": 60,
+    "festasOuBares": 0,
+    "hobbies": 0,
+    "confraternizacao": 0,
+    "outros": 0
+  },
+  "investimentos":{
+    "educacao": 95,
+    "investimentos": 0,
+    "reservaDeEmergencia": 95
+  },
+  "mes": "Janeiro",
+  "ano": 2023
+}
