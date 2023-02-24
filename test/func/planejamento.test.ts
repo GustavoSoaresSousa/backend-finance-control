@@ -2,16 +2,30 @@ import request from 'supertest';
 import body_finance from '../fixtures/responsePlanejamento.json'
 import { SetupServer } from '../../src/server'
 import { PlanejamentoModel, DemostracoesFinanceiras } from '../../src/models/planejamento';
+import { User } from '../../src/models/user';
+import { AuthService } from '../../src/service/auth';
 
 
 describe('Test functional on controller planejamento', () => {
   let server: SetupServer;
   let id: string;
-  beforeAll(async() => {
+  let token: string;
+
+  const defaultUser = {
+    name: 'John Doe',
+    email: 'john4@mail.com',
+    password: '1234',
+  };
+
+  beforeEach(async() => {
     server = new SetupServer();
     await server.init();
 
-    const createdFinance = await PlanejamentoModel.create({
+    await User.deleteMany({});
+    const user = await new User(defaultUser).save();
+
+    await PlanejamentoModel.deleteMany({});
+    const createdFinance = await new PlanejamentoModel({
       receitas: {
         salario: 3000,
         outrasReceitas: 0
@@ -49,13 +63,16 @@ describe('Test functional on controller planejamento', () => {
         reservaDeEmergencia: 95
       },
       mes: "Janeiro",
-      ano: 2023
-    });
+      ano: 2023,
+      user: user.id
+    }).save();
     id = createdFinance._id;
+
+    const authService = new AuthService();
+    token = authService.generateToken(user.toJSON());
   })
 
   afterAll(async () => {
-    await PlanejamentoModel.deleteMany()
     server = new SetupServer();
     server.close();
   });
@@ -103,7 +120,7 @@ describe('Test functional on controller planejamento', () => {
   }
 
   it('Create one finance register in database with success', async () => {
-    const { status, body } = await request(server.getApp()).post('/finance/create').send(new_finance)
+    const { status, body } = await request(server.getApp()).post('/finance/create').set({'x-access-token': token}).send(new_finance)
     expect(status).toBe(201)
     expect(body).toBeTruthy()
   })
@@ -149,7 +166,7 @@ describe('Test functional on controller planejamento', () => {
       mes: "Janeiro", // não consigo criar registros dos mesmo meses, mesmo tendo REMOVVIDO "UNIQUE:TRUE"
       ano: 2023
     }]
-    const { status, body } = await request(server.getApp()).get('/finance/findAll')
+    const { status, body } = await request(server.getApp()).get('/finance/findAll').set({'x-access-token': token});
     expect(status).toBe(200)
     expect(body).toEqual(responseFinance)
   })
@@ -197,13 +214,13 @@ describe('Test functional on controller planejamento', () => {
       ano: 2023
     }]
 
-    const { status, body } = await request(server.getApp()).put(`/finance/editOne/${id}`).send(finance)
+    const { status, body } = await request(server.getApp()).put(`/finance/editOne/${id}`).set({'x-access-token': token}).send(finance)
     expect(status).toBe(200);
     expect(body).toMatchObject(body)
   })
 // GFC185363 senha do insominia
   it('Delete one finance register with success', async () => {
-    const {status, body} = await request(server.getApp()).delete(`/finance/deleteOne/${id}`)
+    const {status, body} = await request(server.getApp()).delete(`/finance/deleteOne/${id}`).set({'x-access-token': token});
     expect(status).toBe(200)
     expect(body).toMatchObject({message: 'Finance Delete with Sucess'})
   })
