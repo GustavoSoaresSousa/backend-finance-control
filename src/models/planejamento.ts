@@ -62,6 +62,7 @@ export interface DemostracoesFinanceiras {
   investimentos?: Investimentos[]
   mes: MES
   ano: number
+  user: string;
 }
 
 const schema = new Schema(
@@ -71,7 +72,8 @@ const schema = new Schema(
     lazer: { type: Array<Lazer>, require: false },
     investimentos: { type: Array<Investimentos>, require: false },
     mes: { type: String, enum: Object.values(MES), require: true, },
-    ano: {type: Number, required: true }
+    ano: {type: Number, required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true }
   },
   {
     toJSON: {
